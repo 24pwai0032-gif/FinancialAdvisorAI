@@ -20,8 +20,8 @@ dist/
 # Env & secrets
 .env
 **/.env
-.env.local
-.env.production
+.env.*
+!.env.example
 DEPLOY_SECRETS.local.md
 
 # Misc
