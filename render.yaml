@@ -1,5 +1,5 @@
 # Render Blueprint — backend API + Redis. (Frontend is on Vercel; Postgres is
-# on Neon because Render Postgres has no superuser, so the owner role can't get
+# on Neon (us-east-2, so Render runs in ohio) because Render Postgres has no superuser, so the owner role can't get
 # the BYPASSRLS that the cross-tenant SECURITY DEFINER functions need.)
 #
 # Deploy: Render dashboard → New → Blueprint → pick this repo. Values marked
@@ -11,7 +11,7 @@ services:
     name: moneywealth-api
     runtime: docker
     plan: free
-    region: virginia
+    region: ohio
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     # No healthCheckPath: TrustedHost would reject a probe whose Host isn't the
@@ -69,6 +69,6 @@ services:
   - type: keyvalue
     name: moneywealth-redis
     plan: free
-    region: virginia
+    region: ohio
     # Internal-only: reachable from Render services in this region, not the internet.
     ipAllowList: []
