@@ -29,4 +29,5 @@ EXPOSE 3000
 # Single worker by default — the durable sync worker can run in-process
 # (SYNC_WORKER_ENABLED=true) on a single instance, or as a separate
 # `python -m scripts.worker` service when you scale out.
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-3000}"]
+# ALLOWED_HOSTS falls back to Render's own hostname (ENV=production rejects '*').
+CMD ["sh", "-c", "export ALLOWED_HOSTS=\"${ALLOWED_HOSTS:-${RENDER_EXTERNAL_HOSTNAME:-*}}\"; exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-3000}"]

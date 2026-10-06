@@ -1,0 +1,74 @@
+# Render Blueprint — backend API + Redis. (Frontend is on Vercel; Postgres is
+# on Neon because Render Postgres has no superuser, so the owner role can't get
+# the BYPASSRLS that the cross-tenant SECURITY DEFINER functions need.)
+#
+# Deploy: Render dashboard → New → Blueprint → pick this repo. Values marked
+# `sync: false` are prompted for once and never committed. Migrations are NOT
+# run here (the service only gets the non-owner app_user DSN) — run
+# `python -m scripts.migrate` with the Neon owner DSN before deploying a schema change.
+services:
+  - type: web
+    name: moneywealth-api
+    runtime: docker
+    plan: free
+    region: virginia
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    # No healthCheckPath: TrustedHost would reject a probe whose Host isn't the
+    # public hostname. ALLOWED_HOSTS defaults to RENDER_EXTERNAL_HOSTNAME (Dockerfile CMD).
+    autoDeploy: true
+    buildFilter:
+      paths:
+        - backend/**
+        - render.yaml
+    envVars:
+      - key: ENV
+        value: production
+      - key: LOG_LEVEL
+        value: info
+      # Neon app_user DSN (direct endpoint, not -pooler: asyncpg uses prepared statements).
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: moneywealth-redis
+          property: connectionString
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      # The Vercel app URL (verification/reset email links, Stripe redirects).
+      - key: WEB_APP_URL
+        sync: false
+      - key: MAIL_TRANSPORT
+        value: console
+      - key: ADVISOR_PROVIDER
+        value: groq
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-120b
+      # Default 10k ≈ 2 advisor turns/day (each reserves ~5k).
+      - key: TOKEN_BUDGET_FREE
+        value: "2000000"
+      - key: PLAID_ENV
+        value: sandbox
+      - key: PLAID_PRODUCTS
+        value: transactions,liabilities,investments
+      - key: PLAID_CLIENT_ID
+        sync: false
+      - key: PLAID_SECRET
+        sync: false
+      # base64 of exactly 32 random bytes (AES-256).
+      - key: PLAID_ENC_KEY
+        sync: false
+      - key: SYNC_WORKER_ENABLED
+        value: "true"
+
+  - type: keyvalue
+    name: moneywealth-redis
+    plan: free
+    region: virginia
+    # Internal-only: reachable from Render services in this region, not the internet.
+    ipAllowList: []

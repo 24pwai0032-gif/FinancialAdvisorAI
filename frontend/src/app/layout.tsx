@@ -65,8 +65,14 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${display.variable} ${heading.variable} h-full antialiased`}
     >
       <body className="min-h-full">
-        {/* Sets the theme class on <html> before first paint — no flash. */}
-        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+        {/* Sets the theme class on <html> before first paint — no flash.
+            suppressHydrationWarning: browsers blank the nonce *attribute* after
+            parse (CSP nonce hiding), so React would see nonce="" vs the prop. */}
+        <script
+          nonce={nonce}
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }}
+        />
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-brand focus:px-4 focus:py-2 focus:font-medium focus:text-on-brand"
