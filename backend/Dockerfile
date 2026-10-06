@@ -25,7 +25,7 @@ USER appuser
 
 EXPOSE 3000
 
-# $PORT lets the host (App Runner / Render / Railway / Fly) pick the port.
+# $PORT lets the host (Render / ECS / Fly / Railway) pick the port.
 # Single worker by default — the durable sync worker can run in-process
 # (SYNC_WORKER_ENABLED=true) on a single instance, or as a separate
 # `python -m scripts.worker` service when you scale out.

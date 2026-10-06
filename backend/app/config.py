@@ -154,7 +154,7 @@ class Settings(BaseSettings):
     # NOTE: open models are weaker at compliance framing; run evals before trusting
     # them as the production advisor brain (see docs/PHASE3_PENDING.md).
     groq_api_key: str | None = None
-    groq_model: str = "llama-3.3-70b-versatile"
+    groq_model: str = "openai/gpt-oss-120b"  # supports tool calling; Llama 3.3 70B was retired
     # Default to Opus 4.8 for financial-reasoning quality. At high volume, set
     # ADVISOR_MODEL=claude-sonnet-4-6 to cut cost (~$3/$15 vs $5/$25 per 1M).
     advisor_model: str = "claude-opus-4-8"
