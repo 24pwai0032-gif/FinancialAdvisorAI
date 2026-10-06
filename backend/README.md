@@ -8,12 +8,13 @@ build order in [docs/BUILD_SEQUENCE.md](docs/BUILD_SEQUENCE.md).
 > Python is the primary application language; if/when heavy quant or ML work
 > appears (evals, Monte Carlo modeling, embeddings), it stays in Python too.
 
-**Deployed:** runs on **AWS ECS Fargate** with **RDS PostgreSQL**, **Upstash Redis**, and
-secrets in **AWS SSM Parameter Store**. Image lives in ECR; the task-definition template
-is in [`deploy/task-definition.json`](deploy/task-definition.json) and the
-push→ECR→ECS pipeline in [`../.github/workflows/deploy-backend.yml`](../.github/workflows/deploy-backend.yml).
-The full reproducible target stack (VPC, ALB, autoscaling, Multi-AZ RDS) is Terraform in
-[`../infra/terraform/`](../infra/terraform/). Runbook: [`../DEPLOY.md`](../DEPLOY.md).
+**Deployed:** the live demo runs this `Dockerfile` on **Render** (Blueprint in
+[`../render.yaml`](../render.yaml)) with **Neon PostgreSQL** and Render Key Value (Redis) —
+see [`../docs/deployment.md`](../docs/deployment.md). The scale-out path is **AWS ECS
+Fargate + RDS**: task-definition template in [`deploy/task-definition.json`](deploy/task-definition.json),
+push→ECR→ECS pipeline in [`../.github/workflows/deploy-backend.yml`](../.github/workflows/deploy-backend.yml),
+and the full stack (VPC, ALB, autoscaling, Multi-AZ RDS) as Terraform in
+[`../infra/terraform/`](../infra/terraform/) — see [`../docs/deploy-aws.md`](../docs/deploy-aws.md).
 
 ## Status
 - ✅ **Phase 0** — scaffold, config, asyncpg pool (RDS-Proxy-ready), SQL migrations, structlog, tracing, health
@@ -43,31 +44,31 @@ cp .env.example .env
 python -m venv .venv && source .venv/bin/activate   # (Windows: .venv\Scripts\activate)
 pip install -r requirements-dev.txt
 python -m scripts.migrate                      # apply db/migrations/*.sql
-uvicorn app.main:app --reload --port 3000      # http://localhost:3000
+uvicorn app.main:app --reload --port 8000      # http://localhost:8000
 ```
 
 Or run everything in containers from the repo root: `docker compose up --build`.
 
 ## Verify it's up
 ```bash
-curl localhost:3000/health
-curl localhost:3000/health/ready
+curl localhost:8000/health
+curl localhost:8000/health/ready
 
 # Auth flow
-curl -X POST localhost:3000/api/v1/auth/signup \
+curl -X POST localhost:8000/api/v1/auth/signup \
   -H 'content-type: application/json' \
   -d '{"email":"me@example.com","password":"SecurePass123!"}'
 # -> check server logs for the dev verification link (MAIL_TRANSPORT=console)
 
-curl -X POST localhost:3000/api/v1/auth/login \
+curl -X POST localhost:8000/api/v1/auth/login \
   -H 'content-type: application/json' \
   -d '{"email":"me@example.com","password":"SecurePass123!"}' -c cookies.txt
 # -> { access_token, user_id }; refresh token set as httpOnly cookie
 
-curl localhost:3000/api/v1/auth/me -H "authorization: Bearer <access_token>"
+curl localhost:8000/api/v1/auth/me -H "authorization: Bearer <access_token>"
 ```
 
-Interactive API docs: http://localhost:3000/docs (FastAPI auto-generated).
+Interactive API docs: http://localhost:8000/docs (FastAPI auto-generated).
 
 ## Commands
 | Command | Purpose |

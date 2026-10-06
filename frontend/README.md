@@ -30,7 +30,7 @@ The browser **only** talks to Next. Route handlers proxy to the backend server-s
 
 ```bash
 npm install
-echo "API_BASE_URL=http://localhost:3000" > .env.local   # the backend origin
+echo "API_BASE_URL=http://localhost:8000" > .env.local   # the backend origin
 echo "NEXT_PUBLIC_APP_URL=http://localhost:3100" >> .env.local
 npm run dev                                               # http://localhost:3100
 ```
