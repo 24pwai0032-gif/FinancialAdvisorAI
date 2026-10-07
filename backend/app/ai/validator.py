@@ -8,7 +8,14 @@ from dataclasses import dataclass
 _SQL = re.compile(r"\bSELECT\s+.*\bFROM\b|\bINSERT\s+INTO\b|\bDROP\s+TABLE\b|\bUPDATE\s+\w+\s+SET\b", re.I)
 _API_KEY = re.compile(r"sk-ant-[A-Za-z0-9_-]{6,}|sk-[A-Za-z0-9]{20,}")
 _HAS_NUMBER = re.compile(r"\$[\d,]+(\.\d+)?|\b\d+(\.\d+)?\s*%|\b\d{3,}\b")
-_INVESTMENT = re.compile(r"\b(stock|etf|bond|portfolio|equity|invest|security|fund|crypto)\b", re.I)
+# Investment vocabulary that requires educational framing. Bare "fund"/"security"
+# are deliberately absent: they fire on "emergency fund", "Social Security" and
+# "financial security", which turned ordinary savings answers into fallbacks.
+_INVESTMENT = re.compile(
+    r"\b(stocks?|etfs?|bonds?|portfolios?|equit(?:y|ies)|invest(?:s|ed|ing|ments?|ors?)?|securities"
+    r"|(?:mutual|index|hedge)\s+funds?|crypto(?:currenc(?:y|ies))?|bitcoin|dividends?)\b",
+    re.I,
+)
 _DISCLAIMER = re.compile(
     r"educational|not\s+(financial\s+)?advice|consult.*(advisor|professional)|general\s+(context|education)", re.I
 )

@@ -76,6 +76,12 @@ OUTPUT_CASES: list[tuple[str, list[str], bool, str | None]] = [
     # Investment content without educational framing -> rejected
     ("You should move your portfolio into tech stocks for better returns.", [], False,
      "INVESTMENT_RESPONSE_MISSING_DISCLAIMER"),
+    # Inflected investment vocabulary still needs framing -> rejected
+    ("Your investments are 47% equities across 10 holdings.", ["get_portfolio_summary"], False,
+     "INVESTMENT_RESPONSE_MISSING_DISCLAIMER"),
+    # Savings vocabulary ("emergency fund", "Social Security") is not investment talk -> allowed
+    ("Your Emergency fund is 40% complete ($4,800 of $12,000); Social Security isn't counted.",
+     ["get_goals_status"], True, None),
     # Investment content WITH educational framing -> allowed
     ("For general education only: diversified index funds are one way people "
      "manage portfolio risk. Consider consulting a licensed advisor.", [], True, None),
