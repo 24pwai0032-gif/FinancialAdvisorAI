@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const tryRefresh = useCallback(async (): Promise<boolean> => {
     const res = await fetch("/api/auth/refresh", { method: "POST" });
-    if (!res.ok) return false;
+    if (!res.ok || res.status === 204) return false; // 204 = no session cookie
     const data = (await res.json()) as { access_token?: string };
     if (!data.access_token) return false;
     accessToken.current = data.access_token;

@@ -11,7 +11,9 @@ import {
 export async function POST() {
   const rt = await getRefreshCookie();
   if (!rt) {
-    return Response.json({ code: "UNAUTHORIZED", message: "No session." }, { status: 401 });
+    // No cookie is the normal state for a logged-out visitor, not an error:
+    // 204 keeps every public page's console free of a red 401 on boot.
+    return new Response(null, { status: 204 });
   }
 
   const r = await backendFetch("/api/v1/auth/refresh", {
